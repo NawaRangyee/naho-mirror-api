@@ -25,7 +25,7 @@ var Mode = ""
 var ListenPort = ""
 var Loc *time.Location
 
-var LogPath = flag.String("log-path", "./logs", "log path for saving locally")
+// var LogPath = flag.String("log-path", "./logs", "log path for saving locally")
 var dotEnvPath = flag.String("env", ".env", "env file to specify. (default: '.env')")
 
 func init() {
@@ -35,15 +35,6 @@ func init() {
 	} else {
 		logger.Infoln("Loaded LOT from env file")
 	}
-
-	//MqttURL = os.Getenv("CHAPI_MQTT_URL")
-	//if MqttURL == "" {
-	//	logger.Fatalln("CHAPI_MQTT_URL missing")
-	//}
-	//MqttClientID = os.Getenv("CHAPI_MQTT_CLIENT_ID")
-	//if MqttClientID == "" {
-	//	logger.Fatalln("CHAPI_MQTT_CLIENT_ID missing")
-	//}
 
 	Mode = os.Getenv("MODE")
 	if IsProductionMode() {
