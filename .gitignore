@@ -31,3 +31,7 @@ main
 .env.test
 .env.production
 .env.development
+
+# log directory
+
+/logs/
