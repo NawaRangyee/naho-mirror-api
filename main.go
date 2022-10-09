@@ -5,6 +5,8 @@ import (
 	"github.com/chyeh/pubip"
 	"github.com/rs/cors"
 	"mirror-api/config"
+	"mirror-api/controller/route"
+	"mirror-api/data"
 	"mirror-api/docs"
 	"mirror-api/service/telegram"
 	"mirror-api/util"

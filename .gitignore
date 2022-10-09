@@ -35,3 +35,4 @@ main
 # log directory
 
 /logs/
+/badger/
