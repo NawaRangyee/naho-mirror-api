@@ -1,10 +1,11 @@
 package config
 
 import (
-	"chapi/util/logger"
+	"flag"
 	"fmt"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
+	"mirror-api/util/logger"
 	"os"
 	"strings"
 	"time"
@@ -14,98 +15,52 @@ const (
 	ModeProduction  = "Production"
 	ModeDevelopment = "Development"
 
-	ServerName = "ch-api"
+	ServerName = "mirror-api"
 )
 
-var SqlURL = ""
-var MariaDBURL = ""
-var TokyoMongoURI = ""
 var NodeName = ""
 var TelegramChatID = ""
 var TelegramAccessToken = ""
 var Mode = ""
-var UserTokenSecret = ""
 var ListenPort = ""
-var EmailUsername = ""
-var EmailPass = ""
-var SimpleSession = ""
-var ApiLayerKey = ""
 var Loc *time.Location
 
-// MARK: For 3rd-party SDKs
-
-var SDKKakaoClientID = ""
-var SDKKakaoClientSecret = ""
+var LogPath = flag.String("log-path", "./logs", "log path for saving locally")
+var dotEnvPath = flag.String("env", ".env", "env file to specify. (default: '.env')")
 
 func init() {
-	envFileLoaded := false
-	for i := range os.Args {
-		if os.Args[i] == "env" {
-			fileName := os.Args[i+1]
-			err := godotenv.Load(fileName)
-			if err != nil {
-				logger.Fatal("Error loading .env file", err)
-			}
-			envFileLoaded = true
-			break
-		}
-	}
-
-	if !envFileLoaded {
-		err := godotenv.Load()
-		if err != nil {
-			logger.Fatal("Error loading .env file")
-		} else {
-			logger.Info("Loaded LOT from env file")
-		}
-	}
-
-	UserTokenSecret = os.Getenv("CHAPI_ENCRYPT")
-	if UserTokenSecret == "" {
-		logger.Fatal("CHAPI_ENCRYPT missing")
+	err := godotenv.Load(*dotEnvPath)
+	if err != nil {
+		logger.Fatalln("Error loading .env file")
+	} else {
+		logger.Infoln("Loaded LOT from env file")
 	}
 
 	//MqttURL = os.Getenv("CHAPI_MQTT_URL")
 	//if MqttURL == "" {
-	//	logger.Fatal("CHAPI_MQTT_URL missing")
+	//	logger.Fatalln("CHAPI_MQTT_URL missing")
 	//}
 	//MqttClientID = os.Getenv("CHAPI_MQTT_CLIENT_ID")
 	//if MqttClientID == "" {
-	//	logger.Fatal("CHAPI_MQTT_CLIENT_ID missing")
+	//	logger.Fatalln("CHAPI_MQTT_CLIENT_ID missing")
 	//}
 
-	Mode = os.Getenv("CHAPI_MODE")
+	Mode = os.Getenv("MODE")
 	if IsProductionMode() {
-		logger.Info("Running CHAPI in Production Mode")
+		logger.Infoln("Running mirror-api in Production Mode")
 	} else {
 		Mode = ModeDevelopment
-		logger.Info("Running CHAPI in Development Mode")
+		logger.Infoln("Running mirror-api in Development Mode")
 		log.SetLevel(log.DebugLevel)
 	}
-	NodeName = os.Getenv("CHAPI_NODE_NAME")
+	NodeName = os.Getenv("NODE_NAME")
 
-	TokyoMongoURI = os.Getenv("CHAPI_MONGO_URI")
-	SqlURL = os.Getenv("CHAPI_MYSQL_URL")
+	TelegramChatID = os.Getenv("TELEGRAM_CHAT_ID")
+	TelegramAccessToken = os.Getenv("TELEGRAM_ACCESS_TOKEN")
 
-	TelegramChatID = os.Getenv("CHAPI_TELEGRAM_CHAT_ID")
-	TelegramAccessToken = os.Getenv("CHAPI_TELEGRAM_ACCESS_TOKEN")
+	ListenPort = os.Getenv("LISTEN_PORT")
 
-	EmailUsername = os.Getenv("CHAPI_EMAIL_ID")
-	EmailPass = os.Getenv("CHAPI_EMAIL_PASSWORD")
-
-	ListenPort = os.Getenv("CHAPI_PORT")
-
-	SimpleSession = os.Getenv("CHAPI_SIMPLE_SESSION")
-	if SimpleSession == "" {
-		logger.Fatal("CHAPI_SIMPLE_SESSION missing")
-	}
-
-	ApiLayerKey = os.Getenv("APILAYER_API_KEY")
-
-	SDKKakaoClientID = os.Getenv("CHAPI_SDK_KAKAO_CLIENT_ID")
-	SDKKakaoClientSecret = os.Getenv("CHAPI_SDK_KAKAO_CLIENT_SECRET")
-
-	Loc, _ = time.LoadLocation("Asia/Seoul")
+	Loc, _ = time.LoadLocation("Asia/Seoul") // Change this value to your location
 }
 
 func IsProductionMode(strs ...string) bool {
