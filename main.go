@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/chyeh/pubip"
+	"github.com/robfig/cron/v3"
 	"github.com/rs/cors"
 	"mirror-api/config"
 	"mirror-api/controller/route"
@@ -23,43 +24,47 @@ var localIP = ""
 var pubIP = ""
 var hostname = ""
 
+var c *cron.Cron
+
 func init() {
 	logger.Init(config.IsProductionMode())
 	data.Init()
 
-	// Init model
+	// MARK: Init model
 	mirror.InitFromConfig()
 
-	// Init Services...
+	// MARK: Init Services...
 	telegram.Init()
 }
 
 func main() {
-	// Send Startup Message
+	// MARK: Send Startup Message
 	go sendStarted()
 
-	// Loading HTTP Router
+	// MARK: Loading HTTP Router
 	router := route.Load()
 
-	//Allowing c for now for frontend reset pass
+	// MARK: Allowing nCors for now for frontend reset pass
 	corsMiddle()
-	c := cors.New(cors.Options{
+	nCors := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"HEAD", "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},
 		AllowCredentials: true,
 		AllowedHeaders:   []string{"*"},
 		MaxAge:           1728000,
 	})
-	handler := c.Handler(router)
+	handler := nCors.Handler(router)
 
-	// programatically set swagger info
+	// MARK: programatically set swagger info
 	docs.SwaggerInfo.Title = "Mirror API"
 	docs.SwaggerInfo.Description = "Access-Token : AccessToken"
 	docs.SwaggerInfo.Version = "1.0"
 	docs.SwaggerInfo.Host = config.GetHostname()
 	docs.SwaggerInfo.BasePath = "/v1"
 
-	// Handling server requested to stop.
+	// MARK: Starting cron jobs
+	cronJobs()
+	// MARK: Handling server requested to stop.
 	handleServerStop()
 
 	logger.L.Infof("Listening on port %s\n", config.ListenPort)
@@ -115,4 +120,15 @@ func sendStarted() {
 	}
 	// Send a telegramMessage to notice server has been started.
 	util.SendStarted(hostname, localIP, pubIP)
+}
+
+func cronJobs() {
+	if !config.IsProductionMode() {
+		return
+	}
+
+	// MARK: Renew config.json every 10 minutes
+	_, _ = c.AddFunc("*/10 * * * *", mirror.InitFromConfig)
+
+	c.Start()
 }
