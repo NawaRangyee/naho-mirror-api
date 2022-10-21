@@ -28,6 +28,7 @@ var hostname = ""
 
 // var LogPath = flag.String("log-path", "./logs", "log path for saving locally")
 var dotEnvPath = flag.String("env", ".env", "env file to specify. (default: '.env')")
+var ConfigFilePath = flag.String("config-path", "config.json", "config file to checkup list (default: 'config.json')")
 
 func init() {
 	err := godotenv.Load(*dotEnvPath)
