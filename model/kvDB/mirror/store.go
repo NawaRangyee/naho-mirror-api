@@ -54,3 +54,7 @@ func GetOneByID(id string) (*Mirror, error) {
 
 	return &m, nil
 }
+
+func GetHostname() string {
+	return hostname
+}
