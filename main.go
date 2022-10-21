@@ -8,6 +8,7 @@ import (
 	"mirror-api/controller/route"
 	"mirror-api/data"
 	"mirror-api/docs"
+	"mirror-api/model/kvDB/mirror"
 	"mirror-api/service/telegram"
 	"mirror-api/util"
 	"mirror-api/util/logger"
@@ -25,6 +26,9 @@ var hostname = ""
 func init() {
 	logger.Init(config.IsProductionMode())
 	data.Init()
+
+	// Init model
+	mirror.InitFromConfig()
 
 	// Init Services...
 	telegram.Init()
