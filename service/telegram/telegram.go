@@ -55,7 +55,7 @@ func SendMessageAt(message string, at time.Time) {
 	if !config.IsProductionMode() || !enabled {
 		return
 	}
-	msg := fmt.Sprintf("<%s> %s\n%s", config.ServerName, message, at.In(config.Loc).String())
+	msg := fmt.Sprintf("<%s> %s\n%s", config.GetServiceFullName(), message, at.In(config.Loc).String())
 	logger.L.Debug("Sending telegram Message...")
 	_, err := bot.Send(to, msg)
 	if err != nil {
