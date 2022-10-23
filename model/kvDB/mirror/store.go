@@ -48,6 +48,7 @@ func InitFromConfig() {
 	}
 
 	for _, m := range d.Mirrors {
+		m.Status = StatusNotRunning
 		mirrorCache.Set(m.Id, m, cache.DefaultExpiration)
 	}
 

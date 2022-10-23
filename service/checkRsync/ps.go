@@ -25,7 +25,6 @@ func ProcessCheck() error {
 			logger.L.Errorw(err.Error(), "func", "ProcessCheck()", "extra", "ProcessCheckByMirror(v)")
 		}
 		v.Status = status
-
 		mirror.SetOneByID(v.Id, v)
 	}
 
@@ -33,7 +32,7 @@ func ProcessCheck() error {
 }
 
 func ProcessCheckByMirror(m mirror.Mirror) (string, error) {
-	psCmd := exec.Command("ps", "-ef", "|", "grep", "rsync", "|", "grep", m.Id, "|", "grep", "-v", "grep")
+	psCmd := exec.Command("/usr/bin/ps", "-ef")
 	var outB, errB bytes.Buffer
 	psCmd.Stdout = &outB
 	psCmd.Stderr = &errB
@@ -44,8 +43,15 @@ func ProcessCheckByMirror(m mirror.Mirror) (string, error) {
 	}
 	outStr := outB.String()
 	split := strings.Split(outStr, "\n")
-	if len(split) > 0 {
-		return mirror.StatusRunning, nil
+
+	for _, currPs := range split {
+		if strings.Contains(currPs, "grep --color=auto") || !strings.Contains(currPs, "rsync") || strings.Contains(currPs, "--daemon") {
+			continue
+		}
+
+		if strings.Contains(currPs, m.Id) {
+			return mirror.StatusRunning, nil
+		}
 	}
 
 	return mirror.StatusNotRunning, nil

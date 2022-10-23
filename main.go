@@ -69,6 +69,9 @@ func main() {
 	// MARK: Handling server requested to stop.
 	handleServerStop()
 
+	// MARK: Run once before API Server starts
+	go checkRsync.Run()
+
 	logger.L.Infof("Listening on port %s\n", config.ListenPort)
 	logger.L.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", config.ListenPort), handler))
 }
