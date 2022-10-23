@@ -1,0 +1,35 @@
+{
+  "hostname": "kr.mirrors.naho.moe",
+  "mirrors": [
+    {
+      "id": "armbian-apt",
+      "name": "armbian/apt",
+      "path": "/armbian/apt",
+      "frequency" : 3600,
+      "protocols": [
+        "HTTPS",
+        "RSYNC"
+      ]
+    },
+    {
+      "id": "armbian-dl",
+      "name": "armbian/dl",
+      "path": "/armbian/dl",
+      "frequency": 3600,
+      "protocols": [
+        "HTTPS",
+        "RSYNC"
+      ]
+    },
+    {
+      "id": "armbian-cache",
+      "name": "armbian/cache",
+      "path": "/armbian/cache",
+      "frequency": 3000,
+      "protocols": [
+        "HTTPS",
+        "RSYNC"
+      ]
+    }
+  ]
+}
