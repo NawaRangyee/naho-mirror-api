@@ -27,6 +27,7 @@ func routes() *gin.Engine {
 	router := getEngine()
 
 	// MARKS : API v1
+	router.GET(api1("/mirrors"), handle(v1.MirrorsGET))
 
 	// Util
 	router.GET("/coffee", handle(v1.CoffeeGET))

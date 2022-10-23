@@ -3,16 +3,29 @@ package mirror
 import (
 	"fmt"
 	json "github.com/json-iterator/go"
+	"github.com/patrickmn/go-cache"
 	"mirror-api/config"
 	"mirror-api/util"
 	"os"
+	"time"
 )
 
 var hostname = ""
-var mirrorMap map[string]Mirror
+
+var mirrorCache *cache.Cache
+
+func init() {
+	mirrorCache = cache.New(12*time.Hour, 1*time.Hour)
+}
 
 var (
 	ErrNotFound = fmt.Errorf("not found")
+)
+
+const (
+	StatusCheckFailed = "failed_to_check"
+	StatusRunning     = "running"
+	StatusNotRunning  = "not_running"
 )
 
 func init() {
@@ -34,27 +47,35 @@ func InitFromConfig() {
 		return
 	}
 
-	newMirrorMap := make(map[string]Mirror)
 	for _, m := range d.Mirrors {
-		newMirrorMap[m.Id] = m
+		mirrorCache.Set(m.Id, m, cache.DefaultExpiration)
 	}
 
-	mirrorMap = newMirrorMap
 }
 
 func GetAll() map[string]Mirror {
-	return mirrorMap
-}
+	result := make(map[string]Mirror)
 
-func GetOneByID(id string) (*Mirror, error) {
-	m, e := mirrorMap[id]
-	if !e {
-		return nil, ErrNotFound
+	for k, v := range mirrorCache.Items() {
+		result[k] = v.Object.(Mirror)
 	}
 
-	return &m, nil
+	return result
+}
+
+func GetOneByID(id string) (Mirror, error) {
+	m, e := mirrorCache.Get(id)
+	if !e {
+		return Mirror{}, ErrNotFound
+	}
+
+	return m.(Mirror), nil
 }
 
 func GetHostname() string {
 	return hostname
+}
+
+func SetOneByID(id string, m Mirror) {
+	mirrorCache.Set(id, m, cache.DefaultExpiration)
 }
