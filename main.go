@@ -10,6 +10,7 @@ import (
 	"mirror-api/data"
 	"mirror-api/docs"
 	"mirror-api/model/kvDB/mirror"
+	"mirror-api/service/checkRsync"
 	"mirror-api/service/telegram"
 	"mirror-api/util"
 	"mirror-api/util/logger"
@@ -18,6 +19,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 var localIP = ""
@@ -126,9 +128,13 @@ func cronJobs() {
 	if !config.IsProductionMode() {
 		return
 	}
+	if c == nil {
+		c = cron.New(cron.WithLocation(time.Local))
+	}
 
 	// MARK: Renew config.json every 10 minutes
 	_, _ = c.AddFunc("*/10 * * * *", mirror.InitFromConfig)
+	_, _ = c.AddFunc("* * * * *", checkRsync.Run)
 
 	c.Start()
 }
