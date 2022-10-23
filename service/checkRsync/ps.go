@@ -34,10 +34,12 @@ func ProcessCheck() error {
 
 func ProcessCheckByMirror(m mirror.Mirror) (string, error) {
 	psCmd := exec.Command("ps", "-ef", "|", "grep", "rsync", "|", "grep", m.Id, "|", "grep", "-v", "grep")
-	var outB bytes.Buffer
+	var outB, errB bytes.Buffer
 	psCmd.Stdout = &outB
+	psCmd.Stderr = &errB
 	err := psCmd.Run()
 	if err != nil {
+		logger.L.Error(errB.String())
 		return mirror.StatusCheckFailed, fmt.Errorf("psCmd.Run(): %s", err)
 	}
 	outStr := outB.String()
