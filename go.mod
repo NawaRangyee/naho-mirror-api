@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/chyeh/pubip v0.0.0-20170203095919-b7e679cf541c
-	github.com/dgraph-io/badger/v3 v3.2103.3
+	github.com/dgraph-io/badger/v3 v3.2103.4
 	github.com/gin-gonic/gin v1.8.1
 	github.com/joho/godotenv v1.4.0
 	github.com/json-iterator/go v1.1.12
